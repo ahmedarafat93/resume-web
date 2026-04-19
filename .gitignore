@@ -16,6 +16,12 @@ dist-ssr
 .claude/
 .vercel/
 
+# TinaCMS generated
+tina/__generated__/
+public/admin/
+.env
+.env.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

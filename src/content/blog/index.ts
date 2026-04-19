@@ -10,33 +10,48 @@ export interface BlogMeta {
   color: string
 }
 
-export const blogPosts: BlogMeta[] = [
-  {
-    slug: 'welcome',
-    title: 'Welcome to My Corner of the Internet',
-    excerpt: 'A bit about who I am, why I built this site, and what you can expect to find here — from automotive engineering deep-dives to personal reflections.',
-    date: 'Mar 13, 2026',
-    readTime: '4 min read',
-    tags: ['Personal', 'Introduction'],
-    color: '#3b82f6',
-  },
-  {
-    slug: 'future-of-adas',
-    title: 'The Future of ADAS: Where Are We Headed?',
-    excerpt: 'After years of working on advanced driver assistance systems at Ford, here are my thoughts on the trajectory of ADAS technology and what the next decade looks like.',
-    date: 'Mar 13, 2026',
-    readTime: '6 min read',
-    tags: ['Automotive', 'ADAS', 'Technology'],
-    color: '#8b5cf6',
-  },
-]
+interface MdxModule {
+  default: ComponentType
+  frontmatter: {
+    title: string
+    excerpt: string
+    date: string | Date
+    readTime: string
+    tags: string[]
+    color: string
+  }
+}
 
-// Lazy-load MDX components
-const modules = import.meta.glob<{ default: ComponentType }>('./*.mdx', { eager: true })
+const modules = import.meta.glob<MdxModule>('./*.mdx', { eager: true })
+
+const formatDate = (d: string | Date): string => {
+  const date = typeof d === 'string' ? new Date(d) : d
+  if (isNaN(date.getTime())) return String(d)
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
 
 export const blogComponents: Record<string, ComponentType> = {}
+export const blogPosts: BlogMeta[] = []
 
 for (const [path, mod] of Object.entries(modules)) {
   const slug = path.replace('./', '').replace('.mdx', '')
   blogComponents[slug] = mod.default
+  const fm = mod.frontmatter
+  if (fm) {
+    blogPosts.push({
+      slug,
+      title: fm.title,
+      excerpt: fm.excerpt,
+      date: formatDate(fm.date),
+      readTime: fm.readTime,
+      tags: fm.tags ?? [],
+      color: fm.color,
+    })
+  }
 }
+
+blogPosts.sort((a, b) => {
+  const da = new Date(a.date).getTime()
+  const db = new Date(b.date).getTime()
+  return db - da
+})
