@@ -16,8 +16,12 @@ dist-ssr
 .claude/
 .vercel/
 
-# TinaCMS generated
-tina/__generated__/
+# TinaCMS — keep schema JSON (needed by Tina Cloud) but ignore volatile client
+tina/__generated__/client.ts
+tina/__generated__/types.ts
+tina/__generated__/frags.gql
+tina/__generated__/queries.gql
+tina/__generated__/config.prebuild.jsx
 public/admin/
 .env
 .env.local
